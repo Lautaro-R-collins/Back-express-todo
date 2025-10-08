@@ -18,7 +18,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// Obtener una nota por ID (solo si pertenece al usuario)
+// Obtener una nota por ID 
 router.get("/:id", async (req, res) => {
   try {
     const note = await Note.findById(req.params.id);
