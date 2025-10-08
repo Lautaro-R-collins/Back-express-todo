@@ -1,30 +1,37 @@
 import express from "express";
 import notesRoutes from "./routes/notesRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 import dotenv from "dotenv";
 import connectDB from "./config/db.js";
-import cors from "cors"
+import cors from "cors";
 
 dotenv.config();
-const app = express(); 
+const app = express();
 
-app.use(cors( {
-  origin: "https://front-react-todo.onrender.com"
-}))
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://front-react-todo.onrender.com"
+];
 
-// middlewares
-app.use(express.json()); 
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
 
-// rutas
-app.use("/api/notes", notesRoutes);
+app.use(express.json());
+
+app.use("/api/auth", authRoutes);   // register & login
+app.use("/api/notes", notesRoutes); // notas protegidas
 
 const PORT = process.env.PORT || 3000;
 
 connectDB()
-.then(() => {
-  app.listen(PORT, () => {
-    console.log(`Server corriendo en http://localhost:${PORT}`);
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server corriendo en http://localhost:${PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error("Error al iniciar el servidor:", error);
   });
-})
-.catch((error) => {
-  console.error("Error al iniciar el servidor:", error);
-});
