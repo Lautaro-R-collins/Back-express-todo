@@ -36,15 +36,16 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// Crear nota (asignada a user y tablero opcional)
+// Crear nota (con checklist opcional)
 router.post("/", async (req, res) => {
   try {
-    const { title, content, board } = req.body; // <--- usar "board" para que coincida con frontend
+    const { title, content, board, checklist } = req.body;
     const note = new Note({
       title,
       content,
       user: req.user._id,
-      board: board || null
+      board: board || null,
+      checklist: checklist || [] 
     });
     const savedNote = await note.save();
     res.status(201).json(savedNote);
