@@ -7,6 +7,70 @@ const router = express.Router();
 // Todas las rutas requieren auth
 router.use(auth);
 
+/* -------------------- SUBNOTAS (CHECKLIST) -------------------- */
+
+// Agregar subnota
+router.post("/:id/checklist", async (req, res) => {
+  try {
+    const note = await Note.findById(req.params.id);
+    if (!note || note.user.toString() !== req.user._id.toString()) {
+      return res.status(404).json({ message: "Nota no encontrada" });
+    }
+
+    const { text } = req.body;
+    note.checklist.push({ text, done: false });
+
+    await note.save();
+    res.status(200).json(note);
+  } catch (err) {
+    console.error("Error al agregar subnota:", err);
+    res.status(500).json({ message: "Error al agregar subnota" });
+  }
+});
+
+// Toggle done de subnota
+router.put("/:id/checklist/:taskId", async (req, res) => {
+  try {
+    const note = await Note.findById(req.params.id);
+    if (!note || note.user.toString() !== req.user._id.toString()) {
+      return res.status(404).json({ message: "Nota no encontrada" });
+    }
+
+    const task = note.checklist.id(req.params.taskId);
+    if (!task) return res.status(404).json({ message: "Subnota no encontrada" });
+
+    task.done = req.body.done;
+    await note.save();
+
+    res.status(200).json(note);
+  } catch (err) {
+    console.error("Error al actualizar subnota:", err);
+    res.status(500).json({ message: "Error al actualizar subnota" });
+  }
+});
+
+// Eliminar subnota
+router.delete("/:id/checklist/:taskId", async (req, res) => {
+  try {
+    const note = await Note.findById(req.params.id);
+    if (!note || note.user.toString() !== req.user._id.toString()) {
+      return res.status(404).json({ message: "Nota no encontrada" });
+    }
+
+    note.checklist = note.checklist.filter(
+      (task) => task._id.toString() !== req.params.taskId
+    );
+    await note.save();
+
+    res.status(200).json(note);
+  } catch (err) {
+    console.error("Error al eliminar subnota:", err);
+    res.status(500).json({ message: "Error al eliminar subnota" });
+  }
+});
+
+/* -------------------- NOTAS -------------------- */
+
 // Obtener notas del usuario (opcionalmente filtradas por tablero)
 router.get("/", async (req, res) => {
   try {
@@ -36,7 +100,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// Crear nota (con checklist opcional)
+// Crear nota
 router.post("/", async (req, res) => {
   try {
     const { title, content, board, checklist } = req.body;
@@ -45,7 +109,7 @@ router.post("/", async (req, res) => {
       content,
       user: req.user._id,
       board: board || null,
-      checklist: checklist || [] 
+      checklist: checklist || [],
     });
     const savedNote = await note.save();
     res.status(201).json(savedNote);
@@ -55,7 +119,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-// Editar nota (solo owner, permite mover de tablero)
+// Editar nota
 router.put("/:id", async (req, res) => {
   try {
     const note = await Note.findById(req.params.id);
@@ -65,7 +129,7 @@ router.put("/:id", async (req, res) => {
 
     note.title = req.body.title ?? note.title;
     note.content = req.body.content ?? note.content;
-    if (req.body.board !== undefined) note.board = req.body.board; // <--- permitimos mover de tablero
+    if (req.body.board !== undefined) note.board = req.body.board;
 
     const updated = await note.save();
     res.status(200).json(updated);
@@ -75,7 +139,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-// Eliminar nota (solo owner)
+// Eliminar nota
 router.delete("/:id", async (req, res) => {
   try {
     const note = await Note.findById(req.params.id);
