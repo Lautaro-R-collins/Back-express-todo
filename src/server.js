@@ -1,6 +1,7 @@
 import express from "express";
 import notesRoutes from "./routes/notesRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import boardsRoutes from "./routes/boardsRoutes.js"; 
 import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import cors from "cors";
@@ -21,8 +22,10 @@ app.use(cors({
 
 app.use(express.json());
 
-app.use("/api/auth", authRoutes);   // register & login
-app.use("/api/notes", notesRoutes); // notas protegidas
+// Rutas
+app.use("/api/auth", authRoutes);      // registro & login
+app.use("/api/notes", notesRoutes);    // notas protegidas
+app.use("/api/boards", boardsRoutes);  // tableros protegidos
 
 const PORT = process.env.PORT || 3000;
 
