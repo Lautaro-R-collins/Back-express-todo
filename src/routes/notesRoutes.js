@@ -71,7 +71,7 @@ router.delete("/:id/checklist/:taskId", async (req, res) => {
 
 /* -------------------- NOTAS -------------------- */
 
-// Obtener notas del usuario (opcionalmente filtradas por tablero)
+// Obtener notas del usuario 
 router.get("/", async (req, res) => {
   try {
     const { boardId } = req.query;
@@ -153,5 +153,22 @@ router.delete("/:id", async (req, res) => {
     res.status(500).json({ message: "Error al eliminar la nota" });
   }
 });
+
+// Fijar o desfijar una nota
+router.put("/:id/pin", async (req, res) => {
+  try {
+    const note = await Note.findById(req.params.id);
+    if (!note) return res.status(404).json({ message: "Nota no encontrada" });
+
+    note.pinned = !note.pinned;
+    await note.save();
+
+    res.json(note); 
+  } catch (err) {
+    console.error("Error al alternar pin:", err);
+    res.status(500).json({ message: "Error al alternar pin" });
+  }
+});
+
 
 export default router;
