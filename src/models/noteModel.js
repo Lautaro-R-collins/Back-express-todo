@@ -12,7 +12,12 @@ const noteSchema = new mongoose.Schema(
         done: { type: Boolean, default: false },
       },
     ],
-    pinned: { type: Boolean, default: false }, 
+    pinned: { type: Boolean, default: false },
+    priority: {
+      type: String,
+      enum: ["baja", "media", "alta", "ninguna"],
+      default: "ninguna",
+    },
   },
   { timestamps: true }
 );
