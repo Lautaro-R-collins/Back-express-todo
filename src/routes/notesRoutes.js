@@ -103,13 +103,14 @@ router.get("/:id", async (req, res) => {
 // Crear nota
 router.post("/", async (req, res) => {
   try {
-    const { title, content, board, checklist } = req.body;
+    const { title, content, board, checklist, priority } = req.body;
     const note = new Note({
       title,
       content,
       user: req.user._id,
       board: board || null,
       checklist: checklist || [],
+      priority: priority || "ninguna",
     });
     const savedNote = await note.save();
     res.status(201).json(savedNote);
@@ -126,10 +127,13 @@ router.put("/:id", async (req, res) => {
     if (!note || note.user.toString() !== req.user._id.toString()) {
       return res.status(404).json({ message: "Nota no encontrada" });
     }
-
-    note.title = req.body.title ?? note.title;
-    note.content = req.body.content ?? note.content;
+    // Actualizamos todos los campos editables
+    if (req.body.title !== undefined) note.title = req.body.title;
+    if (req.body.content !== undefined) note.content = req.body.content;
     if (req.body.board !== undefined) note.board = req.body.board;
+    if (req.body.priority !== undefined) note.priority = req.body.priority;
+    if (req.body.pinned !== undefined) note.pinned = req.body.pinned;
+    if (req.body.checklist !== undefined) note.checklist = req.body.checklist;
 
     const updated = await note.save();
     res.status(200).json(updated);
