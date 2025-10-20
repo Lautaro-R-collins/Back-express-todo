@@ -10,8 +10,8 @@ dotenv.config();
 const app = express();
 
 const allowedOrigins = [
-  "http://localhost:5173",
-  "https://front-react-todo.onrender.com"
+  "https://front-react-todo.onrender.com",
+  "http://localhost:5173"
 ];
 
 app.use(cors({
