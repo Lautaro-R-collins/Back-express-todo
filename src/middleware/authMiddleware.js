@@ -14,11 +14,11 @@ const auth = async (req, res, next) => {
     const token = authHeader.split(" ")[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // cargar usuario sin password
+    // cargar usuario
     const user = await User.findById(decoded.id).select("-password");
     if (!user) return res.status(401).json({ message: "User not found" });
 
-    req.user = user; // ponemos user en request
+    req.user = user; // user en request
     next();
   } catch (err) {
     console.error("Auth middleware error:", err);
