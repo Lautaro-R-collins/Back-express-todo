@@ -18,7 +18,7 @@ router.get("/", getBoards);
 // Crear un tablero
 router.post("/", createBoard);
 
-// Eliminar un tablero (y opcionalmente sus notas)
+// Eliminar un tablero
 router.delete("/:id", deleteBoard);
 
 // Actualizar un tablero

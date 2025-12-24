@@ -17,8 +17,6 @@ const router = express.Router();
 // Todas las rutas requieren auth
 router.use(auth);
 
-/* -------------------- SUBNOTAS (CHECKLIST) -------------------- */
-
 // Agregar subnota
 router.post("/:id/checklist", addChecklistItem);
 
@@ -28,9 +26,7 @@ router.put("/:id/checklist/:taskId", toggleChecklistItem);
 // Eliminar subnota
 router.delete("/:id/checklist/:taskId", deleteChecklistItem);
 
-/* -------------------- NOTAS -------------------- */
-
-// Obtener notas del usuario 
+// Obtener notas del usuario
 router.get("/", getNotes);
 
 // Obtener nota por ID
