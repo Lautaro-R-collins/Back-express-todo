@@ -3,157 +3,158 @@ import Note from "../models/noteModel.js";
 // --- Subnotas (Checklist) ---
 
 export const addChecklistItem = async (req, res) => {
-    try {
-        const note = await Note.findById(req.params.id);
-        if (!note || note.user.toString() !== req.user._id.toString()) {
-            return res.status(404).json({ message: "Nota no encontrada" });
-        }
-
-        const { text } = req.body;
-        note.checklist.push({ text, done: false });
-
-        await note.save();
-        res.status(200).json(note);
-    } catch (err) {
-        console.error("Error al agregar subnota:", err);
-        res.status(500).json({ message: "Error al agregar subnota" });
+  try {
+    const note = await Note.findById(req.params.id);
+    if (!note || note.user.toString() !== req.user._id.toString()) {
+      return res.status(404).json({ message: "Nota no encontrada" });
     }
+
+    const { text } = req.body;
+    note.checklist.push({ text, done: false });
+
+    await note.save();
+    res.status(200).json(note);
+  } catch (err) {
+    console.error("Error al agregar subnota:", err);
+    res.status(500).json({ message: "Error al agregar subnota" });
+  }
 };
 
 export const toggleChecklistItem = async (req, res) => {
-    try {
-        const note = await Note.findById(req.params.id);
-        if (!note || note.user.toString() !== req.user._id.toString()) {
-            return res.status(404).json({ message: "Nota no encontrada" });
-        }
-
-        const task = note.checklist.id(req.params.taskId);
-        if (!task) return res.status(404).json({ message: "Subnota no encontrada" });
-
-        task.done = req.body.done;
-        await note.save();
-
-        res.status(200).json(note);
-    } catch (err) {
-        console.error("Error al actualizar subnota:", err);
-        res.status(500).json({ message: "Error al actualizar subnota" });
+  try {
+    const note = await Note.findById(req.params.id);
+    if (!note || note.user.toString() !== req.user._id.toString()) {
+      return res.status(404).json({ message: "Nota no encontrada" });
     }
+
+    const task = note.checklist.id(req.params.taskId);
+    if (!task)
+      return res.status(404).json({ message: "Subnota no encontrada" });
+
+    task.done = req.body.done;
+    await note.save();
+
+    res.status(200).json(note);
+  } catch (err) {
+    console.error("Error al actualizar subnota:", err);
+    res.status(500).json({ message: "Error al actualizar subnota" });
+  }
 };
 
 export const deleteChecklistItem = async (req, res) => {
-    try {
-        const note = await Note.findById(req.params.id);
-        if (!note || note.user.toString() !== req.user._id.toString()) {
-            return res.status(404).json({ message: "Nota no encontrada" });
-        }
-
-        note.checklist = note.checklist.filter(
-            (task) => task._id.toString() !== req.params.taskId
-        );
-        await note.save();
-
-        res.status(200).json(note);
-    } catch (err) {
-        console.error("Error al eliminar subnota:", err);
-        res.status(500).json({ message: "Error al eliminar subnota" });
+  try {
+    const note = await Note.findById(req.params.id);
+    if (!note || note.user.toString() !== req.user._id.toString()) {
+      return res.status(404).json({ message: "Nota no encontrada" });
     }
+
+    note.checklist = note.checklist.filter(
+      (task) => task._id.toString() !== req.params.taskId
+    );
+    await note.save();
+
+    res.status(200).json(note);
+  } catch (err) {
+    console.error("Error al eliminar subnota:", err);
+    res.status(500).json({ message: "Error al eliminar subnota" });
+  }
 };
 
 // --- Notas ---
 
 export const getNotes = async (req, res) => {
-    try {
-        const { boardId } = req.query;
-        const filter = { user: req.user._id };
-        if (boardId) filter.board = boardId;
+  try {
+    const { boardId } = req.query;
+    const filter = { user: req.user._id };
+    if (boardId) filter.board = boardId;
 
-        const notes = await Note.find(filter).sort({ createdAt: -1 });
-        res.status(200).json(notes);
-    } catch (error) {
-        console.error("Error al obtener las notas:", error);
-        res.status(500).json({ message: "Error al obtener las notas" });
-    }
+    const notes = await Note.find(filter).sort({ createdAt: -1 });
+    res.status(200).json(notes);
+  } catch (error) {
+    console.error("Error al obtener las notas:", error);
+    res.status(500).json({ message: "Error al obtener las notas" });
+  }
 };
 
 export const getNoteById = async (req, res) => {
-    try {
-        const note = await Note.findById(req.params.id);
-        if (!note || note.user.toString() !== req.user._id.toString()) {
-            return res.status(404).json({ message: "Nota no encontrada" });
-        }
-        res.status(200).json(note);
-    } catch (error) {
-        console.error("Error al obtener la nota:", error);
-        res.status(500).json({ message: "Error al obtener la nota" });
+  try {
+    const note = await Note.findById(req.params.id);
+    if (!note || note.user.toString() !== req.user._id.toString()) {
+      return res.status(404).json({ message: "Nota no encontrada" });
     }
+    res.status(200).json(note);
+  } catch (error) {
+    console.error("Error al obtener la nota:", error);
+    res.status(500).json({ message: "Error al obtener la nota" });
+  }
 };
 
 export const createNote = async (req, res) => {
-    try {
-        const { title, content, board, checklist, priority } = req.body;
-        const note = new Note({
-            title,
-            content,
-            user: req.user._id,
-            board: board || null,
-            checklist: checklist || [],
-            priority: priority || "ninguna",
-        });
-        const savedNote = await note.save();
-        res.status(201).json(savedNote);
-    } catch (error) {
-        console.error("Error al crear la nota:", error);
-        res.status(500).json({ message: "Error al crear una nota" });
-    }
+  try {
+    const { title, content, board, checklist, priority } = req.body;
+    const note = new Note({
+      title,
+      content,
+      user: req.user._id,
+      board: board || null,
+      checklist: checklist || [],
+      priority: priority || "ninguna",
+    });
+    const savedNote = await note.save();
+    res.status(201).json(savedNote);
+  } catch (error) {
+    console.error("Error al crear la nota:", error);
+    res.status(500).json({ message: "Error al crear una nota" });
+  }
 };
 
 export const updateNote = async (req, res) => {
-    try {
-        const note = await Note.findById(req.params.id);
-        if (!note || note.user.toString() !== req.user._id.toString()) {
-            return res.status(404).json({ message: "Nota no encontrada" });
-        }
-        // Actualizamos todos los campos editables
-        if (req.body.title !== undefined) note.title = req.body.title;
-        if (req.body.content !== undefined) note.content = req.body.content;
-        if (req.body.board !== undefined) note.board = req.body.board;
-        if (req.body.priority !== undefined) note.priority = req.body.priority;
-        if (req.body.pinned !== undefined) note.pinned = req.body.pinned;
-        if (req.body.checklist !== undefined) note.checklist = req.body.checklist;
-
-        const updated = await note.save();
-        res.status(200).json(updated);
-    } catch (error) {
-        console.error("Error al actualizar la nota:", error);
-        res.status(500).json({ message: "Error al actualizar la nota" });
+  try {
+    const note = await Note.findById(req.params.id);
+    if (!note || note.user.toString() !== req.user._id.toString()) {
+      return res.status(404).json({ message: "Nota no encontrada" });
     }
+    // Actualizamos todos los campos editables
+    if (req.body.title !== undefined) note.title = req.body.title;
+    if (req.body.content !== undefined) note.content = req.body.content;
+    if (req.body.board !== undefined) note.board = req.body.board;
+    if (req.body.priority !== undefined) note.priority = req.body.priority;
+    if (req.body.pinned !== undefined) note.pinned = req.body.pinned;
+    if (req.body.checklist !== undefined) note.checklist = req.body.checklist;
+
+    const updated = await note.save();
+    res.status(200).json(updated);
+  } catch (error) {
+    console.error("Error al actualizar la nota:", error);
+    res.status(500).json({ message: "Error al actualizar la nota" });
+  }
 };
 
 export const deleteNote = async (req, res) => {
-    try {
-        const note = await Note.findById(req.params.id);
-        if (!note || note.user.toString() !== req.user._id.toString()) {
-            return res.status(404).json({ message: "Nota no encontrada" });
-        }
-        await note.deleteOne();
-        res.status(204).send();
-    } catch (error) {
-        console.error("Error al eliminar la nota:", error);
-        res.status(500).json({ message: "Error al eliminar la nota" });
+  try {
+    const note = await Note.findById(req.params.id);
+    if (!note || note.user.toString() !== req.user._id.toString()) {
+      return res.status(404).json({ message: "Nota no encontrada" });
     }
+    await note.deleteOne();
+    res.status(204).send();
+  } catch (error) {
+    console.error("Error al eliminar la nota:", error);
+    res.status(500).json({ message: "Error al eliminar la nota" });
+  }
 };
 
 export const togglePin = async (req, res) => {
-    try {
-        const note = await Note.findById(req.params.id);
-        if (!note) return res.status(404).json({ message: "Nota no encontrada" });
+  try {
+    const note = await Note.findById(req.params.id);
+    if (!note) return res.status(404).json({ message: "Nota no encontrada" });
 
-        note.pinned = !note.pinned;
-        await note.save();
+    note.pinned = !note.pinned;
+    await note.save();
 
-        res.json(note);
-    } catch (err) {
-        console.error("Error al alternar pin:", err);
-        res.status(500).json({ message: "Error al alternar pin" });
-    }
+    res.json(note);
+  } catch (err) {
+    console.error("Error al alternar pin:", err);
+    res.status(500).json({ message: "Error al alternar pin" });
+  }
 };
